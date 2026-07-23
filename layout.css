@@ -1,0 +1,373 @@
+
+/*
+ GamingHub v2 - layout.css
+ Layout components
+*/
+
+/* =========================
+   HERO
+========================= */
+
+.hero{
+    position:relative;
+    margin-bottom:2rem;
+}
+
+.hero-banner{
+    width:100%;
+    height:360px;
+    border-radius:24px;
+    overflow:hidden;
+    border:1px solid var(--border);
+}
+
+.hero-banner img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+.hero-overlay{
+    position:absolute;
+    inset:0;
+    background:linear-gradient(to top,rgba(0,0,0,.75),rgba(0,0,0,.2));
+    border-radius:24px;
+}
+
+.hero-content{
+    position:absolute;
+    left:3rem;
+    right:3rem;
+    bottom:2rem;
+    display:flex;
+    align-items:flex-end;
+    gap:2rem;
+}
+
+.profile-portrait{
+    width:180px;
+    height:180px;
+    border-radius:20px;
+    overflow:hidden;
+    border:4px solid var(--surface);
+    box-shadow:var(--shadow);
+    flex-shrink:0;
+}
+
+.profile-portrait img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+.hero-details{
+    color:white;
+}
+
+.hero-tags{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.5rem;
+    margin-top:.75rem;
+}
+
+.hero-tag{
+    background:rgba(255,255,255,.15);
+    backdrop-filter:blur(6px);
+    padding:.35rem .8rem;
+    border-radius:999px;
+    font-size:.9rem;
+}
+
+/* =========================
+   TABS
+========================= */
+
+.tabs{
+    position:sticky;
+    top:0;
+    z-index:50;
+    display:flex;
+    gap:.5rem;
+    padding:1rem;
+    margin-bottom:2rem;
+    background:rgba(18,18,20,.92);
+    backdrop-filter:blur(12px);
+    border:1px solid var(--border);
+    border-radius:18px;
+}
+
+.tab-button{
+    flex:1;
+    padding:1rem;
+    background:transparent;
+    color:var(--muted);
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    transition:var(--transition);
+    font-weight:600;
+}
+
+.tab-button:hover{
+    background:var(--surface2);
+    color:var(--text);
+}
+
+.tab-button.active{
+    background:var(--primary);
+    color:white;
+}
+
+.tab-panel{
+    display:none;
+}
+
+.tab-panel.active{
+    display:block;
+    animation:fade .2s ease;
+}
+
+/* =========================
+   PROFILE
+========================= */
+
+.profile-grid{
+    display:grid;
+    grid-template-columns:340px 1fr;
+    gap:2rem;
+}
+
+.profile-sidebar{
+    display:flex;
+    flex-direction:column;
+    gap:1.5rem;
+}
+
+.profile-main{
+    display:flex;
+    flex-direction:column;
+    gap:2rem;
+}
+
+.info-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:1rem;
+}
+
+.info-item{
+    padding:1rem;
+    background:var(--surface2);
+    border-radius:12px;
+    border:1px solid var(--border);
+}
+
+.info-label{
+    font-size:.85rem;
+    color:var(--muted);
+    margin-bottom:.25rem;
+}
+
+.info-value{
+    font-weight:600;
+}
+
+/* =========================
+   RELATIONSHIPS
+========================= */
+
+.relationship-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+    gap:1.5rem;
+}
+
+.relationship-card{
+    display:flex;
+    gap:1rem;
+    padding:1rem;
+    border:1px solid var(--border);
+    border-radius:18px;
+    background:var(--surface);
+    transition:var(--transition);
+}
+
+.relationship-card:hover{
+    transform:translateY(-4px);
+}
+
+.relationship-avatar{
+    width:72px;
+    height:72px;
+    border-radius:16px;
+    overflow:hidden;
+    flex-shrink:0;
+}
+
+.relationship-avatar img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+/* =========================
+   GALLERIES
+========================= */
+
+.gallery-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+    gap:1rem;
+}
+
+.gallery-image{
+    aspect-ratio:1;
+    overflow:hidden;
+    border-radius:16px;
+    cursor:pointer;
+    border:1px solid var(--border);
+}
+
+.gallery-image img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    transition:transform .3s ease;
+}
+
+.gallery-image:hover img{
+    transform:scale(1.05);
+}
+
+.gallery-section{
+    margin-bottom:3rem;
+}
+
+.gallery-section.hidden{
+    display:none;
+}
+
+/* =========================
+   AU ACCORDIONS
+========================= */
+
+.au-card{
+    border:1px solid var(--border);
+    border-radius:18px;
+    overflow:hidden;
+    margin-bottom:1.25rem;
+}
+
+.au-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    cursor:pointer;
+    padding:1rem 1.25rem;
+    background:var(--surface2);
+}
+
+.au-content{
+    display:none;
+    padding:1.25rem;
+}
+
+.au-card.open .au-content{
+    display:block;
+}
+
+/* =========================
+   RP
+========================= */
+
+.rp-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:1rem;
+}
+
+.rp-rule{
+    padding:1rem;
+    border:1px solid var(--border);
+    border-radius:14px;
+    background:var(--surface2);
+}
+
+.hook-card{
+    margin-top:1rem;
+}
+
+/* =========================
+   LIGHTBOX
+========================= */
+
+.lightbox{
+    position:fixed;
+    inset:0;
+    display:none;
+    justify-content:center;
+    align-items:center;
+    background:rgba(0,0,0,.9);
+    z-index:999;
+}
+
+.lightbox.open{
+    display:flex;
+}
+
+.lightbox img{
+    max-width:92%;
+    max-height:92%;
+    border-radius:16px;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width:1100px){
+
+.profile-grid{
+    grid-template-columns:1fr;
+}
+
+.hero-content{
+    flex-direction:column;
+    align-items:flex-start;
+}
+
+.profile-portrait{
+    width:140px;
+    height:140px;
+}
+
+}
+
+@media(max-width:768px){
+
+.hero-banner{
+    height:240px;
+}
+
+.tabs{
+    flex-wrap:wrap;
+}
+
+.info-grid,
+.rp-grid{
+    grid-template-columns:1fr;
+}
+
+.relationship-grid,
+.gallery-grid{
+    grid-template-columns:1fr;
+}
+
+.hero-content{
+    left:1.5rem;
+    right:1.5rem;
+    bottom:1.5rem;
+}
+
+}
