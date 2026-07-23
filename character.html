@@ -481,7 +481,7 @@ const API_BASE = "https://testinggroundssb.crysthigpen.workers.dev";
       { key: 'profile', label: 'profile' },
       { key: 'relationships', label: 'relationships' },
       ...galleries.map(g => ({ key: `gallery:${g.name}`, label: g.name.toLowerCase() })),
-      { key: 'rules', label: 'rules & hooks' },
+      { key: 'rules', label: 'rules' },
     ];
 
     if (!tabs.some(t => t.key === activeTab)) activeTab = 'profile';
