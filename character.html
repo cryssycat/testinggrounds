@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <style>
   :root{
     --bg: #e9e2e6;
@@ -323,6 +324,61 @@
     margin-bottom:8px;
   }
   .rule-card .rule-body{ font-size:0.9rem; color:#5a4854; }
+  /* Markdown elements inside a rendered rule body */
+  .rule-body h1, .rule-body h2, .rule-body h3{
+    font-family:'Cormorant Garamond', serif; font-style:italic; font-weight:500;
+    color: var(--accent-deep); margin:0.6em 0 0.3em;
+  }
+  .rule-body p{ margin:0 0 0.7em; }
+  .rule-body p:last-child{ margin-bottom:0; }
+  .rule-body ul, .rule-body ol{ margin:0 0 0.7em; padding-left:1.3em; }
+  .rule-body li{ margin-bottom:0.25em; }
+  .rule-body a{ color: var(--accent-deep); }
+  .rule-body strong{ color: var(--accent-deep); }
+  .rule-body code{
+    background: var(--panel-alt); border-radius:4px;
+    padding:1px 5px; font-size:0.85em;
+  }
+  .rule-body blockquote{
+    margin:0 0 0.7em; padding-left:12px;
+    border-left:3px solid var(--accent);
+    color: var(--muted);
+  }
+
+  /* ---------- Gallery tabs ---------- */
+  .gallery-figure{ position:relative; }
+  .gallery-figure img{
+    width:100%; height:220px; object-fit:cover;
+    border-radius: var(--radius);
+    border:1px solid var(--border);
+    cursor:pointer;
+    display:block;
+  }
+  .gallery-caption{
+    font-size:0.8rem; color: var(--muted);
+    margin-top:6px; text-align:center;
+  }
+  .gallery-gate{
+    background: var(--panel);
+    border:1px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 50px 24px;
+    text-align:center;
+  }
+  .gallery-gate .gate-title{
+    font-family:'Cormorant Garamond', serif;
+    font-style:italic; font-weight:500;
+    font-size:1.4rem; color: var(--accent-deep);
+    margin-bottom:8px;
+  }
+  .gallery-gate .gate-note{ color: var(--muted); font-size:0.9rem; margin-bottom:18px; }
+  .gate-btn{
+    appearance:none; cursor:pointer; border:none;
+    background: var(--accent-deep); color:#fff;
+    font-family:'Jost', sans-serif; font-size:0.9rem;
+    padding:10px 22px; border-radius:20px;
+  }
+  .modal img.lightbox-img{ height:auto; max-height:70vh; object-fit:contain; }
 
   /* ---------- Loading / empty ---------- */
   .loading-msg, .error-msg{
@@ -351,11 +407,7 @@
 </div>
 
 <nav class="tabbar">
-  <div class="tabbar-inner">
-    <button class="tab-btn active" data-tab="profile">profile</button>
-    <button class="tab-btn" data-tab="relationships">relationships</button>
-    <button class="tab-btn" data-tab="rules">rules &amp; hooks</button>
-  </div>
+  <div class="tabbar-inner" id="tabbar-inner"></div>
 </nav>
 
 <main id="app">
@@ -377,8 +429,10 @@ const API_BASE = "https://testinggroundssb.crysthigpen.workers.dev";
   const hero = document.getElementById('hero');
   const heroTitle = document.getElementById('hero-title');
   const backLink = document.getElementById('back-link');
+  const tabbarInner = document.getElementById('tabbar-inner');
 
   let activeTab = 'profile';
+  const revealedGalleries = new Set();
 
   function esc(str){
     if(str === undefined || str === null || str === '') return '';
@@ -416,20 +470,50 @@ const API_BASE = "https://testinggroundssb.crysthigpen.workers.dev";
     const p = character.profile || {};
     const relationships = character.relationships || [];
     const rules = character.rules || [];
+    const galleries = (character.galleries || []).filter(g => g.images && g.images.length);
 
     hero.style.backgroundImage = p.banner_image ? `url('${p.banner_image}')` : 'none';
     heroTitle.textContent = val(p.name, 'the profile') + '.';
 
+    // Build the tab list: profile, relationships, one tab per populated
+    // gallery (in the order the API returns them), then rules.
+    const tabs = [
+      { key: 'profile', label: 'profile' },
+      { key: 'relationships', label: 'relationships' },
+      ...galleries.map(g => ({ key: `gallery:${g.name}`, label: g.name.toLowerCase() })),
+      { key: 'rules', label: 'rules & hooks' },
+    ];
+
+    if (!tabs.some(t => t.key === activeTab)) activeTab = 'profile';
+
+    tabbarInner.innerHTML = tabs.map(t =>
+      `<button class="tab-btn${t.key === activeTab ? ' active' : ''}" data-tab="${esc(t.key)}">${esc(t.label)}</button>`
+    ).join('');
+    tabbarInner.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeTab = btn.dataset.tab;
+        tabbarInner.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+        document.querySelectorAll('.tab-panel').forEach(pnl => pnl.classList.toggle('active', pnl.id === `panel-${cssSafe(activeTab)}`));
+        window.scrollTo({top: 0, behavior:'smooth'});
+      });
+    });
+
     app.innerHTML = `
       <section class="tab-panel" id="panel-profile">${renderProfile(p)}</section>
       <section class="tab-panel" id="panel-relationships">${renderRelationships(relationships)}</section>
+      ${galleries.map(g => `<section class="tab-panel" id="panel-${cssSafe(`gallery:${g.name}`)}">${renderGallery(g)}</section>`).join('')}
       <section class="tab-panel" id="panel-rules">${renderRules(p, rules)}</section>
     `;
 
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === activeTab));
-    document.querySelectorAll('.tab-panel').forEach(pnl => pnl.classList.toggle('active', pnl.id === `panel-${activeTab}`));
+    document.querySelectorAll('.tab-panel').forEach(pnl => pnl.classList.toggle('active', pnl.id === `panel-${cssSafe(activeTab)}`));
 
     wireRelationshipCards(relationships);
+    wireGalleries(galleries);
+  }
+
+  // Turns a tab key like "gallery:NSFW" into a safe DOM id fragment.
+  function cssSafe(key){
+    return String(key).replace(/[^a-zA-Z0-9_-]/g, '-');
   }
 
   function renderProfile(p){
@@ -501,6 +585,15 @@ const API_BASE = "https://testinggroundssb.crysthigpen.workers.dev";
     `;
   }
 
+  function renderMarkdown(text){
+    if (text === undefined || text === null || text === '') return '';
+    if (typeof marked !== 'undefined') {
+      try { return marked.parse(String(text)); }
+      catch (e) { /* fall through to plain text below */ }
+    }
+    return `<p>${esc(text)}</p>`;
+  }
+
   function statRow(label, value){
     return `<div class="stat"><span class="label">${esc(label)}</span><span class="value">${esc(val(value))}</span></div>`;
   }
@@ -539,6 +632,61 @@ const API_BASE = "https://testinggroundssb.crysthigpen.workers.dev";
         openModal(r);
       });
     });
+  }
+
+  function renderGallery(group){
+    const isNSFW = group.name.trim().toLowerCase() === 'nsfw';
+    const gateId = `gate-${cssSafe(group.name)}`;
+
+    if (isNSFW && !revealedGalleries.has(group.name)) {
+      return `
+        <div class="gallery-gate" id="${esc(gateId)}">
+          <div class="gate-title">${esc(group.name)} <span class="crescent">☾</span></div>
+          <div class="gate-note">this gallery may contain mature content.</div>
+          <button class="gate-btn" data-reveal="${esc(group.name)}">show gallery</button>
+        </div>
+      `;
+    }
+
+    return `<div class="gallery">
+      ${group.images.map((img, i) => `
+        <figure class="gallery-figure" data-gallery="${esc(group.name)}" data-index="${i}">
+          <img src="${esc(img.image_url)}" alt="${esc(img.caption || '')}" loading="lazy" onerror="this.closest('.gallery-figure').style.display='none'">
+          ${img.caption ? `<div class="gallery-caption">${esc(img.caption)}</div>` : ''}
+        </figure>
+      `).join('')}
+    </div>`;
+  }
+
+  function wireGalleries(galleries){
+    // NSFW reveal gate
+    app.querySelectorAll('[data-reveal]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        revealedGalleries.add(btn.dataset.reveal);
+        const group = galleries.find(g => g.name === btn.dataset.reveal);
+        const panel = document.getElementById(`panel-${cssSafe(`gallery:${group.name}`)}`);
+        if (panel) panel.innerHTML = renderGallery(group);
+        wireGalleries(galleries);
+      });
+    });
+    // Click-to-enlarge images
+    app.querySelectorAll('.gallery-figure img').forEach(img => {
+      img.addEventListener('click', () => {
+        const fig = img.closest('.gallery-figure');
+        const group = galleries.find(g => g.name === fig.dataset.gallery);
+        const item = group && group.images[Number(fig.dataset.index)];
+        if (item) openImageModal(item);
+      });
+    });
+  }
+
+  function openImageModal(item){
+    const content = document.getElementById('modal-content');
+    content.innerHTML = `
+      <img class="lightbox-img" src="${esc(item.image_url)}" alt="${esc(item.caption || '')}">
+      ${item.caption ? `<div class="modal-desc">${esc(item.caption)}</div>` : ''}
+    `;
+    document.getElementById('modal-backdrop').classList.add('open');
   }
 
   function openModal(r){
@@ -583,7 +731,7 @@ const API_BASE = "https://testinggroundssb.crysthigpen.workers.dev";
         ${rules.map(r => `
           <div class="card rule-card">
             <div class="rule-title"><span class="crescent">☾</span>${esc(val(r.title))}</div>
-            <div class="rule-body">${esc(val(r.body))}</div>
+            <div class="rule-body">${renderMarkdown(r.body)}</div>
           </div>
         `).join('')}
       </div>` : `<div class="loading-msg">no rules added yet.</div>`}
