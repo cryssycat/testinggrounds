@@ -689,8 +689,19 @@ const API_BASE = "https://testinggroundssb.crysthigpen.workers.dev";
     document.getElementById('modal-backdrop').classList.add('open');
   }
 
+  // A Relationship Link value with no scheme and no slash is treated as a
+  // bare character slug and turned into an internal hub link. Anything
+  // else (a full URL, or an already-relative path) is used as typed.
+  function resolveRelationshipLink(value){
+    const v = String(value || '').trim();
+    if (!v) return '';
+    if (/^https?:\/\//i.test(v) || v.includes('/')) return v;
+    return `character.html?c=${encodeURIComponent(v)}`;
+  }
+
   function openModal(r){
     const content = document.getElementById('modal-content');
+    const linkHref = resolveRelationshipLink(r.link_url);
     content.innerHTML = `
       ${r.image_url ? `<img src="${esc(r.image_url)}" alt="">` : ''}
       <div class="rel-name" style="font-family:'Cormorant Garamond',serif; font-style:italic;">${esc(val(r.name,'unknown'))}
@@ -698,7 +709,7 @@ const API_BASE = "https://testinggroundssb.crysthigpen.workers.dev";
       </div>
       ${r.label ? `<div class="tag" style="margin-top:8px;">${esc(r.label)}</div>` : ''}
       <div class="modal-desc">${esc(val(r.description,''))}</div>
-      ${r.link_url ? `<a class="modal-link" href="${esc(r.link_url)}" target="_blank" rel="noopener">visit their profile ↗</a>` : ''}
+      ${linkHref ? `<a class="modal-link" href="${esc(linkHref)}" target="_blank" rel="noopener">visit their profile ↗</a>` : ''}
     `;
     document.getElementById('modal-backdrop').classList.add('open');
   }
