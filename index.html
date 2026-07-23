@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GamingHub v2</title>
+
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/cards.css">
+<link rel="stylesheet" href="css/gallery.css">
+<link rel="stylesheet" href="css/modal.css">
+<link rel="stylesheet" href="css/tabs.css">
+<link rel="stylesheet" href="css/responsive.css">
+</head>
+
+<body data-character-api="https://YOUR-WORKER/character/slug">
+
+<div id="loading-spinner" hidden>Loading...</div>
+<div id="error-message" hidden></div>
+
+<header class="hero">
+    <img id="banner-image" alt="Banner">
+    <div class="hero-content">
+        <img id="portrait-image" alt="Portrait">
+        <h1 id="character-name"></h1>
+        <p id="character-quote"></p>
+        <span id="character-race"></span>
+    </div>
+</header>
+
+<nav class="tabs">
+    <button data-tab="profile">Profile</button>
+    <button data-tab="relationships">Relationships</button>
+    <button data-tab="gallery">Galleries</button>
+    <button data-tab="rp">RP</button>
+</nav>
+
+<main>
+
+<section id="profile" class="tab-panel">
+    <article data-hide-empty><img id="profile-image"></article>
+    <article data-hide-empty><img id="couple-image"></article>
+
+    <section data-hide-empty><h2>Biography</h2><div id="biography"></div></section>
+    <section data-hide-empty><h2>Appearance</h2><div id="appearance"></div></section>
+    <section data-hide-empty><h2>Personality</h2><div id="personality"></div></section>
+</section>
+
+<section id="relationships" class="tab-panel">
+    <div id="relationship-grid"></div>
+</section>
+
+<section id="gallery" class="tab-panel">
+    <section data-hide-empty>
+        <h2>Main Gallery</h2>
+        <div id="main-gallery" class="gallery-grid"></div>
+    </section>
+
+    <section data-hide-empty>
+        <h2>NSFW Gallery</h2>
+        <div id="nsfw-gallery" class="gallery-grid"></div>
+    </section>
+
+    <section data-hide-empty>
+        <h2>Alternate Universes</h2>
+        <div id="au-container"></div>
+    </section>
+</section>
+
+<section id="rp" class="tab-panel">
+    <section data-hide-empty><h2>Rules</h2><div id="rp-rules"></div></section>
+    <section data-hide-empty><h2>Preferences</h2><div id="rp-preferences"></div></section>
+    <section data-hide-empty><h2>Hooks</h2><div id="rp-hook-list"></div></section>
+</section>
+
+</main>
+
+<div class="lightbox">
+    <button class="lightbox-close">×</button>
+    <button class="lightbox-prev">❮</button>
+    <img alt="">
+    <button class="lightbox-next">❯</button>
+    <div class="lightbox-caption"></div>
+</div>
+
+<script src="js/utilities.js"></script>
+<script src="js/modal.js"></script>
+<script src="js/tabs.js"></script>
+<script src="js/profile.js"></script>
+<script src="js/relationships.js"></script>
+<script src="js/gallery.js"></script>
+<script src="js/rp.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>
