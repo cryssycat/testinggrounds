@@ -483,6 +483,8 @@ const API_BASE = "https://testinggroundssb.crysthigpen.workers.dev";
       ...galleries.map(g => ({ key: `gallery:${g.name}`, label: g.name.toLowerCase() })),
       { key: 'rules', label: 'rules' },
     ];
+    const hasHooks = String(p.hooks || '').trim().length > 0;
+    if (hasHooks) tabs.push({ key: 'hooks', label: 'hooks' });
 
     if (!tabs.some(t => t.key === activeTab)) activeTab = 'profile';
 
@@ -503,6 +505,7 @@ const API_BASE = "https://testinggroundssb.crysthigpen.workers.dev";
       <section class="tab-panel" id="panel-relationships">${renderRelationships(relationships)}</section>
       ${galleries.map(g => `<section class="tab-panel" id="panel-${cssSafe(`gallery:${g.name}`)}">${renderGallery(g)}</section>`).join('')}
       <section class="tab-panel" id="panel-rules">${renderRules(p, rules)}</section>
+      ${hasHooks ? `<section class="tab-panel" id="panel-hooks">${renderHooks(p)}</section>` : ''}
     `;
 
     document.querySelectorAll('.tab-panel').forEach(pnl => pnl.classList.toggle('active', pnl.id === `panel-${cssSafe(activeTab)}`));
@@ -746,6 +749,15 @@ const API_BASE = "https://testinggroundssb.crysthigpen.workers.dev";
           </div>
         `).join('')}
       </div>` : `<div class="loading-msg">no rules added yet.</div>`}
+    `;
+  }
+
+  function renderHooks(p){
+    return `
+      <h2 class="section-heading">hooks <span class="rule"></span></h2>
+      <div class="card">
+        <div class="rule-body">${renderMarkdown(p.hooks)}</div>
+      </div>
     `;
   }
 
