@@ -477,13 +477,14 @@ const API_BASE = "https://testinggroundssb.crysthigpen.workers.dev";
 
     // Build the tab list: profile, relationships, one tab per populated
     // gallery (in the order the API returns them), then rules.
-    const tabs = [
-      { key: 'profile', label: 'profile' },
-      { key: 'relationships', label: 'relationships' },
-      ...galleries.map(g => ({ key: `gallery:${g.name}`, label: g.name.toLowerCase() })),
-      { key: 'rules', label: 'rules' },
-    ];
+    const hasRelationships = relationships.length > 0;
+    const hasRules = rules.length > 0;
     const hasHooks = String(p.hooks || '').trim().length > 0;
+
+    const tabs = [{ key: 'profile', label: 'profile' }];
+    if (hasRelationships) tabs.push({ key: 'relationships', label: 'relationships' });
+    tabs.push(...galleries.map(g => ({ key: `gallery:${g.name}`, label: g.name.toLowerCase() })));
+    if (hasRules) tabs.push({ key: 'rules', label: 'rules' });
     if (hasHooks) tabs.push({ key: 'hooks', label: 'hooks' });
 
     if (!tabs.some(t => t.key === activeTab)) activeTab = 'profile';
@@ -502,9 +503,9 @@ const API_BASE = "https://testinggroundssb.crysthigpen.workers.dev";
 
     app.innerHTML = `
       <section class="tab-panel" id="panel-profile">${renderProfile(p)}</section>
-      <section class="tab-panel" id="panel-relationships">${renderRelationships(relationships)}</section>
+      ${hasRelationships ? `<section class="tab-panel" id="panel-relationships">${renderRelationships(relationships)}</section>` : ''}
       ${galleries.map(g => `<section class="tab-panel" id="panel-${cssSafe(`gallery:${g.name}`)}">${renderGallery(g)}</section>`).join('')}
-      <section class="tab-panel" id="panel-rules">${renderRules(p, rules)}</section>
+      ${hasRules ? `<section class="tab-panel" id="panel-rules">${renderRules(p, rules)}</section>` : ''}
       ${hasHooks ? `<section class="tab-panel" id="panel-hooks">${renderHooks(p)}</section>` : ''}
     `;
 
