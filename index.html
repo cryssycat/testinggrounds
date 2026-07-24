@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Commission Queue</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="page-header">
+    <h1>Commission Queue</h1>
+    <button id="open-form-btn" class="btn btn-primary">Request a Commission</button>
+  </header>
+
+  <main>
+    <div id="queue-status" class="status-msg"></div>
+    <div id="queue-grid" class="queue-grid"></div>
+  </main>
+
+  <!-- Card detail modal -->
+  <div id="detail-modal" class="modal hidden">
+    <div class="modal-content">
+      <button class="modal-close" data-close-modal>&times;</button>
+      <h2 id="detail-title"></h2>
+      <p id="detail-order" class="detail-order"></p>
+      <div id="detail-body" class="detail-body"></div>
+    </div>
+  </div>
+
+  <!-- Commission request modal -->
+  <div id="form-modal" class="modal hidden">
+    <div class="modal-content">
+      <button class="modal-close" data-close-modal>&times;</button>
+      <h2>Request a Commission</h2>
+      <form id="commission-form">
+        <label for="customerName">Your Name *</label>
+        <input type="text" id="customerName" name="customerName" required />
+
+        <label for="orderName">Commission Type / Title</label>
+        <input type="text" id="orderName" name="orderName" placeholder="e.g. Character portrait" />
+
+        <label for="requestDetails">Details</label>
+        <textarea id="requestDetails" name="requestDetails" rows="5" placeholder="Describe what you'd like..."></textarea>
+
+        <!-- honeypot field, hidden from real users via CSS -->
+        <input type="text" id="website" name="website" class="honeypot" tabindex="-1" autocomplete="off" />
+
+        <button type="submit" class="btn btn-primary">Submit Request</button>
+        <p id="form-status" class="status-msg"></p>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
