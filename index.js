@@ -6,11 +6,16 @@
  * Routes:
  *   GET  /api/queue          -> list of public queue cards (no description body)
  *   GET  /api/queue/:id      -> full detail for one card (text + image blocks)
+ *   GET  /api/info           -> blocks from a dedicated Notion "info" page
+ *                                (studio info / contact / current status —
+ *                                edit that page in Notion, no code changes)
  *   POST /api/commission     -> create a new Notion page with Status = Inbox
  *
  * Required environment (set via `wrangler secret put` or the dashboard):
  *   NOTION_TOKEN        - Notion internal integration secret
  *   NOTION_DATABASE_ID  - the database ID the queue lives in
+ *   INFO_PAGE_ID         - (optional) a plain Notion PAGE (not a database
+ *                          row) whose body powers the top info banner
  *   ALLOWED_ORIGIN       - (optional) origin allowed for CORS, e.g. https://queue.yoursite.com
  *                          defaults to "*" if unset
  *
@@ -218,6 +223,14 @@ export default {
       if (pathname === '/api/queue' && request.method === 'GET') {
         const cards = await fetchQueue(env);
         return json(cards, 200, env, { 'Cache-Control': 'public, max-age=15' });
+      }
+
+      if (pathname === '/api/info' && request.method === 'GET') {
+        if (!env.INFO_PAGE_ID) {
+          return json({ blocks: [] }, 200, env);
+        }
+        const blocks = await fetchDescription(env, env.INFO_PAGE_ID);
+        return json({ blocks }, 200, env, { 'Cache-Control': 'public, max-age=30' });
       }
 
       const detailMatch = pathname.match(/^\/api\/queue\/([a-zA-Z0-9-]+)$/);
