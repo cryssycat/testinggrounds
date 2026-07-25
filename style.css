@@ -95,6 +95,41 @@ main {
   min-height: 1.2em;
 }
 
+/* --- Search --------------------------------------------------------- */
+.search-bar {
+  margin-bottom: 1.2rem;
+}
+
+.search-bar input {
+  width: 100%;
+  max-width: 420px;
+  font-family: var(--body-font);
+  font-size: 0.95rem;
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 999px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  color: var(--text);
+}
+
+.search-bar input::placeholder {
+  color: rgba(243, 241, 250, 0.4);
+}
+
+.search-bar input:focus {
+  outline: none;
+  border-color: var(--pink);
+  background: var(--glass-bg-strong);
+}
+
+/* browsers' built-in search clear (x) icon, tinted to fit the theme */
+.search-bar input::-webkit-search-cancel-button {
+  filter: brightness(0) invert(1) opacity(0.6);
+  cursor: pointer;
+}
+
 /* --- Info board (pinned studio notice) -------------------------------- */
 .info-board {
   margin: 2rem clamp(1.25rem, 5vw, 4rem) 0;
