@@ -1,288 +1,369 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Game Character Hub</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg-a: #e6e6ea;
-    --bg-b: #d8d8de;
-    --card: #ffffff;
-    --ink: #18181b;
-    --muted: #6b7280;
-    --border: #e4e4e7;
-    --accent: #6366f1;
-    --accent-ink: #4338ca;
-    --pill-bg: #f4f4f5;
-    --shadow: rgba(24,24,27,0.08);
-    --radius: 16px;
-  }
-  *{ box-sizing:border-box; }
-  body{
-    margin:0;
-    min-height:100vh;
-    background: linear-gradient(180deg, var(--bg-a), var(--bg-b));
-    color: var(--ink);
-    font-family:'Inter', system-ui, sans-serif;
-  }
-  .top-accent{ height:4px; background: var(--accent); }
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
 
-  header{
-    max-width:900px; margin:0 auto;
-    padding: 36px 24px 20px;
-    text-align:center;
-  }
-  .back-links{
-    display:flex; justify-content:center; gap:10px; flex-wrap:wrap;
-    margin-bottom:22px;
-  }
-  .back-links a{
-    display:inline-flex; align-items:center; gap:6px;
-    background: var(--card);
-    border:1px solid var(--border);
-    border-radius:20px;
-    padding:8px 16px;
-    font-size:0.85rem;
-    color: var(--ink);
-    text-decoration:none;
-    box-shadow: 0 1px 3px var(--shadow);
-  }
-  .back-links a:hover{ border-color: var(--accent); color: var(--accent-ink); }
+:root {
+  --ink: #1b1b1e;
+  --ink-soft: #2b2b2e;
+  --paper: #faf7f0;
+  --paper-shadow: #e7e0d1;
+  --stamp-teal: #1f6f5c;
+  --stamp-red: #a8412c;
+  --stamp-mustard: #b98a2e;
+  --mono: 'Space Mono', ui-monospace, monospace;
+  --serif: 'Libre Baskerville', Georgia, serif;
+}
 
-  .eyebrow{
-    font-size:0.72rem; letter-spacing:0.14em; text-transform:uppercase;
-    color: var(--muted); margin-bottom:8px; font-weight:600;
-  }
-  h1{
-    font-size: clamp(2rem, 5vw, 2.6rem);
-    font-weight:700; margin:0 0 10px;
-  }
-  .subtitle{ color: var(--muted); font-size:0.98rem; margin:0 0 22px; }
+* { box-sizing: border-box; }
 
-  .owner-tabs{
-    display:flex; justify-content:center; gap:10px; margin-bottom:22px; flex-wrap:wrap;
-  }
-  .owner-tab{
-    appearance:none; cursor:pointer;
-    display:inline-flex; align-items:center; gap:8px;
-    background: var(--card);
-    border:1.5px solid var(--border);
-    border-radius:22px;
-    padding:9px 18px;
-    font-family:'Inter', sans-serif;
-    font-size:0.9rem; font-weight:500;
-    color: var(--muted);
-    box-shadow: 0 1px 3px var(--shadow);
-    transition: all 0.15s ease;
-  }
-  .owner-tab:hover{ color: var(--ink); }
-  .owner-tab.active{
-    border-color: var(--accent);
-    color: var(--accent-ink);
-  }
+body {
+  margin: 0;
+  background: var(--ink);
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(255,255,255,0.035) 1px, transparent 0);
+  background-size: 22px 22px;
+  color: var(--paper);
+  font-family: var(--serif);
+  min-height: 100vh;
+}
 
-  .search-wrap{ max-width:640px; margin: 0 auto 8px; padding: 0 24px; }
-  .search-input{
-    width:100%;
-    background: var(--card);
-    border:1px solid var(--border);
-    border-radius:24px;
-    padding:13px 20px;
-    font-family:'Inter', sans-serif;
-    font-size:0.95rem;
-    color: var(--ink);
-    box-shadow: 0 1px 3px var(--shadow);
-    outline:none;
-  }
-  .search-input:focus{ border-color: var(--accent); }
-  .search-input::placeholder{ color: #a1a1aa; }
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2.5rem clamp(1.25rem, 5vw, 4rem) 1.5rem;
+  border-bottom: 1px dashed rgba(250,247,240,0.25);
+}
 
-  main{ max-width:1100px; margin:0 auto; padding: 28px 24px 80px; }
+.page-header h1 {
+  font-family: var(--mono);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  font-size: clamp(1.4rem, 2.5vw, 2rem);
+  margin: 0;
+}
 
-  .grid{
-    display:grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap:20px;
-  }
-  .card{
-    background: var(--card);
-    border:1px solid var(--border);
-    border-radius: var(--radius);
-    overflow:hidden;
-    cursor:pointer;
-    text-decoration:none;
-    color:inherit;
-    display:block;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-  }
-  .card:hover{ transform: translateY(-3px); box-shadow: 0 12px 24px var(--shadow); }
-  .card .thumb{
-    width:100%; height:180px;
-    background: var(--pill-bg);
-    object-fit:cover; object-position: center 20%;
-    display:block;
-  }
-  .card .thumb-fallback{
-    width:100%; height:180px;
-    background: linear-gradient(135deg, var(--pill-bg), var(--border));
-    display:flex; align-items:center; justify-content:center;
-    font-size:2rem; font-weight:700; color: var(--muted);
-  }
-  .card .body{ padding: 12px 14px 16px; }
-  .card .name{ font-weight:600; font-size:1rem; margin-bottom:2px; }
-  .card .meta{ font-size:0.82rem; color: var(--muted); line-height:1.4; }
-  .card .badge{
-    display:inline-block; margin-top:8px;
-    background: var(--pill-bg);
-    border-radius:12px;
-    font-size:0.72rem;
-    padding:3px 10px;
-    color: var(--muted);
-  }
+.page-header h1::before {
+  content: 'QUEUE — ';
+  color: var(--stamp-mustard);
+}
 
-  .empty-state, .loading-state{
-    text-align:center; color: var(--muted); padding: 60px 20px;
-  }
-</style>
-</head>
-<body>
+main {
+  padding: 2rem clamp(1.25rem, 5vw, 4rem) 4rem;
+}
 
-<div class="top-accent"></div>
+.status-msg {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  opacity: 0.7;
+  min-height: 1.2em;
+}
 
-<header>
-  <div class="back-links" id="back-links"></div>
-  <div class="eyebrow">Starbrew</div>
-  <h1>Game Character Hub</h1>
-  <p class="subtitle">A separate home for Luna and Star's video game characters.</p>
-  <div class="owner-tabs" id="owner-tabs"></div>
-</header>
+.queue-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.75rem;
+  margin-top: 1rem;
+}
 
-<div class="search-wrap">
-  <input type="text" class="search-input" id="search-input" placeholder="Search by name, game, race, or partner...">
-</div>
+/* --- Sections ---------------------------------------------------------- */
+.queue-section {
+  margin-bottom: 3rem;
+}
 
-<main id="grid">
-  <div class="loading-state">gathering the characters...</div>
-</main>
+.section-title {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  color: var(--paper);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 1.1rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px dashed rgba(250,247,240,0.3);
+}
 
-<script>
-  // ---- CONFIG ----
-  const API_BASE = "https://velle-hub.YOUR-SUBDOMAIN.workers.dev";
+.section-count {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: var(--ink);
+  background: var(--stamp-mustard);
+  border-radius: 999px;
+  padding: 0.1rem 0.55rem;
+  min-width: 1.4em;
+  text-align: center;
+}
 
-  // These are static site settings, not Notion-backed — edit here directly
-  // whenever the personal bio-link URLs change.
-  const BACK_LINKS = [
-    { label: "← Back to StarSundae", url: "https://starsundae.example.com" },
-    { label: "← Back to LunaBrew", url: "https://lunabrew.example.com" },
-  ];
+.queue-section-collapsible {
+  margin-bottom: 3rem;
+}
 
-  const OWNER_ICONS = { luna: "☾", star: "★" };
+.queue-section-collapsible > summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px dashed rgba(250,247,240,0.3);
+  margin-bottom: 1.1rem;
+}
 
-  const grid = document.getElementById('grid');
-  const ownerTabsEl = document.getElementById('owner-tabs');
-  const backLinksEl = document.getElementById('back-links');
-  const searchInput = document.getElementById('search-input');
+.queue-section-collapsible > summary::-webkit-details-marker { display: none; }
 
-  let CHARACTERS = [];
-  let currentOwner = null;
+.queue-section-collapsible > summary::before {
+  content: '▸';
+  display: inline-block;
+  transition: transform 0.15s ease;
+  color: var(--stamp-mustard);
+}
 
-  function esc(str){
-    if(str === undefined || str === null || str === '') return '';
-    return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  }
+.queue-section-collapsible[open] > summary::before {
+  transform: rotate(90deg);
+}
 
-  function renderBackLinks(){
-    backLinksEl.innerHTML = BACK_LINKS.map(b => `<a href="${esc(b.url)}">${esc(b.label)}</a>`).join('');
-  }
+.queue-section-collapsible > summary .section-title {
+  border: none;
+  margin: 0;
+  padding: 0;
+}
 
-  async function loadHub(){
-    try{
-      const res = await fetch(`${API_BASE}/api/hub`);
-      if(!res.ok) throw new Error(`Request failed (${res.status})`);
-      const data = await res.json();
-      CHARACTERS = data.characters || [];
+/* --- Ticket card (signature element) ------------------------------- */
+.ticket {
+  position: relative;
+  background: var(--paper);
+  color: var(--ink);
+  border-radius: 4px;
+  padding: 1.4rem 1.3rem 1.1rem;
+  cursor: pointer;
+  box-shadow: 0 10px 0 -4px var(--paper-shadow), 0 12px 20px rgba(0,0,0,0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  overflow: hidden;
+}
 
-      if(!CHARACTERS.length){
-        grid.innerHTML = `<div class="empty-state">no characters added yet.</div>`;
-        return;
-      }
+.ticket:hover,
+.ticket:focus-visible {
+  transform: translateY(-4px) rotate(-0.4deg);
+  box-shadow: 0 14px 0 -4px var(--paper-shadow), 0 18px 26px rgba(0,0,0,0.4);
+}
 
-      const owners = [...new Set(CHARACTERS.map(c => c.profile?.owner).filter(Boolean))].sort();
-      const requestedOwner = new URLSearchParams(location.search).get('owner');
-      currentOwner = owners.includes(requestedOwner) ? requestedOwner : owners[0];
+/* perforation strip along the top */
+.ticket::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 10px;
+  background-image: radial-gradient(circle, var(--ink) 3px, transparent 3.5px);
+  background-size: 16px 10px;
+  background-position: 4px -5px;
+  opacity: 0.9;
+}
 
-      renderOwnerTabs(owners);
-      renderGrid();
-    }catch(err){
-      grid.innerHTML = `<div class="empty-state">the hub wouldn't load.<br><small>${esc(err.message)}</small></div>`;
-    }
-  }
+.ticket-number {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  opacity: 0.55;
+  margin: 0.5rem 0 0.6rem;
+}
 
-  function renderOwnerTabs(owners){
-    if(owners.length < 2){ ownerTabsEl.style.display = 'none'; return; }
-    ownerTabsEl.innerHTML = owners.map(o => {
-      const icon = OWNER_ICONS[o.toLowerCase()] || '•';
-      return `<button class="owner-tab${o === currentOwner ? ' active' : ''}" data-owner="${esc(o)}">${icon} ${esc(o)}'s Characters</button>`;
-    }).join('');
-    ownerTabsEl.querySelectorAll('.owner-tab').forEach(btn => {
-      btn.addEventListener('click', () => {
-        currentOwner = btn.dataset.owner;
-        ownerTabsEl.querySelectorAll('.owner-tab').forEach(b => b.classList.toggle('active', b === btn));
-        const params = new URLSearchParams(location.search);
-        params.set('owner', currentOwner);
-        history.replaceState(null, '', `${location.pathname}?${params.toString()}`);
-        renderGrid();
-      });
-    });
-  }
+.ticket-name {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 1.2rem;
+  margin: 0 0 0.15rem;
+  line-height: 1.25;
+}
 
-  function searchIndexFor(character){
-    const p = character.profile || {};
-    const relNames = (character.relationships || []).map(r => r.name || '').join(' ');
-    return [p.name, p.game, p.species, relNames].filter(Boolean).join(' ').toLowerCase();
-  }
+.ticket-order {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 0.95rem;
+  opacity: 0.75;
+  margin: 0 0 0.7rem;
+}
 
-  function renderGrid(){
-    const query = searchInput.value.trim().toLowerCase();
+.ticket-notes {
+  font-size: 0.85rem;
+  line-height: 1.45;
+  opacity: 0.85;
+  max-height: 3.9em;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
 
-    const visible = CHARACTERS.filter(c => {
-      const p = c.profile || {};
-      if ((p.owner || '') !== currentOwner) return false;
-      if (query && !searchIndexFor(c).includes(query)) return false;
-      return true;
-    });
+.ticket-stamp {
+  position: absolute;
+  top: 1.1rem;
+  right: -0.4rem;
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.7rem;
+  border: 2px solid currentColor;
+  border-radius: 3px;
+  transform: rotate(6deg);
+  opacity: 0.85;
+}
 
-    if(!visible.length){
-      grid.innerHTML = `<div class="empty-state">no characters match.</div>`;
-      return;
-    }
+.stamp-inbox { color: var(--stamp-mustard); }
+.stamp-in-progress { color: var(--stamp-teal); }
+.stamp-ready, .stamp-done, .stamp-completed { color: var(--stamp-red); }
 
-    grid.innerHTML = `<div class="grid">
-      ${visible.map(c => {
-        const p = c.profile || {};
-        const thumb = p.card_image || p.profile_photo || p.couple_image || p.banner_image;
-        const initial = (p.name || '?').trim()[0]?.toUpperCase() || '?';
-        return `<a class="card" href="character.html?c=${encodeURIComponent(c.slug)}&owner=${encodeURIComponent(p.owner || '')}">
-          ${thumb ? `<img class="thumb" src="${esc(thumb)}" alt="" onerror="this.outerHTML='<div class=&quot;thumb-fallback&quot;>${esc(initial)}</div>'">` : `<div class="thumb-fallback">${esc(initial)}</div>`}
-          <div class="body">
-            <div class="name">${esc(p.name || 'unnamed')}</div>
-            <div class="meta">${esc(p.species || '')}</div>
-            <div class="meta">${esc(p.game || '')}</div>
-            ${p.owner ? `<div class="badge">${esc(p.owner)}</div>` : ''}
-          </div>
-        </a>`;
-      }).join('')}
-    </div>`;
-  }
+/* --- Buttons --------------------------------------------------------- */
+.btn {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  letter-spacing: 0.03em;
+  border: 2px solid var(--paper);
+  background: transparent;
+  color: var(--paper);
+  padding: 0.65rem 1.2rem;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
 
-  searchInput.addEventListener('input', renderGrid);
+.btn:hover { background: var(--paper); color: var(--ink); }
 
-  renderBackLinks();
-  loadHub();
-</script>
-</body>
-</html>
+.btn-primary {
+  background: var(--stamp-mustard);
+  border-color: var(--stamp-mustard);
+  color: var(--ink);
+}
+
+.btn-primary:hover { background: var(--paper); border-color: var(--paper); }
+
+/* --- Modal ------------------------------------------------------------ */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(10,10,10,0.72);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 4vh 1rem;
+  overflow-y: auto;
+  z-index: 50;
+}
+
+.modal.hidden { display: none; }
+
+.modal-content {
+  position: relative;
+  background: var(--paper);
+  color: var(--ink);
+  max-width: 640px;
+  width: 100%;
+  border-radius: 6px;
+  padding: 2.2rem 2rem 2rem;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+
+.modal-close {
+  position: absolute;
+  top: 0.8rem;
+  right: 1rem;
+  font-size: 1.6rem;
+  line-height: 1;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--ink);
+  opacity: 0.6;
+}
+
+.modal-close:hover { opacity: 1; }
+
+.detail-order {
+  font-style: italic;
+  opacity: 0.7;
+  margin-top: -0.4rem;
+}
+
+.detail-body { margin-top: 1.4rem; }
+
+.detail-body p { line-height: 1.6; margin: 0 0 1rem; }
+
+.detail-body h3 {
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 1.4rem 0 0.6rem;
+}
+
+.detail-body img {
+  max-width: 100%;
+  border-radius: 4px;
+  display: block;
+  margin: 0.8rem 0 1.2rem;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+  /* tape-corner flourish */
+  transform: rotate(-0.6deg);
+}
+
+.detail-body .img-caption {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  opacity: 0.6;
+  margin-top: -0.8rem;
+  margin-bottom: 1.2rem;
+}
+
+/* --- Form --------------------------------------------------------- */
+#commission-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-top: 1rem;
+}
+
+#commission-form label {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 0.8rem;
+  opacity: 0.75;
+}
+
+#commission-form input,
+#commission-form textarea {
+  font-family: var(--serif);
+  font-size: 1rem;
+  padding: 0.6rem 0.7rem;
+  border: 1.5px solid var(--ink-soft);
+  border-radius: 3px;
+  background: #fff;
+  color: var(--ink);
+  resize: vertical;
+}
+
+#commission-form .btn { margin-top: 1.2rem; align-self: flex-start; }
+
+.honeypot {
+  position: absolute !important;
+  left: -9999px !important;
+  width: 1px; height: 1px;
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticket, .btn { transition: none; }
+}
+
+@media (max-width: 480px) {
+  .page-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+}
