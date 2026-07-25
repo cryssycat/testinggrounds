@@ -1,8 +1,8 @@
 // Point this at your deployed Worker (or leave relative if Worker + Pages
 // are served under the same domain via a route/proxy).
-const API_BASE = 'https://testinggroundss.crysthigpen.workers.dev';
+const API_BASE = 'https://artist-queue-api.YOUR-SUBDOMAIN.workers.dev'.replace(/\/+$/, '');
 
-const queueGrid = document.getElementById('queue-grid');
+const queueSections = document.getElementById('queue-sections');
 const queueStatus = document.getElementById('queue-status');
 
 const detailModal = document.getElementById('detail-modal');
@@ -19,13 +19,45 @@ function statusToClass(status) {
   return 'stamp-' + (status || '').toLowerCase().replace(/\s+/g, '-');
 }
 
+// Order matters — sections render top to bottom in this order.
+// "collapsible" sections start closed; everything else always shows.
+// The last section with statuses: null is a catch-all for anything not
+// claimed by an earlier section (and not Inbox, which always gets its own
+// section at the very bottom).
+const SECTION_DEFS = [
+  { title: 'In the Studio', statuses: ['Coloring', 'Doing Magic', 'Finished'], collapsible: false },
+  { title: 'Sketching', statuses: ['Sketching'], collapsible: false },
+  { title: 'Up Next', statuses: ['Up Next'], collapsible: false },
+  { title: 'Entire Queue', statuses: null, collapsible: true },
+  { title: 'Inbox', statuses: ['Inbox'], collapsible: false },
+];
+
+function groupCards(cards) {
+  const claimed = new Set();
+  SECTION_DEFS.filter((s) => s.statuses).forEach((s) => s.statuses.forEach((st) => claimed.add(st)));
+  claimed.delete('Inbox'); // Inbox has its own dedicated section regardless
+
+  return SECTION_DEFS.map((def) => {
+    let sectionCards;
+    if (def.title === 'Inbox') {
+      sectionCards = cards.filter((c) => c.status === 'Inbox');
+    } else if (def.statuses) {
+      sectionCards = cards.filter((c) => def.statuses.includes(c.status));
+    } else {
+      // catch-all: everything not in another named section and not Inbox
+      sectionCards = cards.filter((c) => c.status !== 'Inbox' && !claimed.has(c.status));
+    }
+    return { ...def, cards: sectionCards };
+  });
+}
+
 function escapeHtml(str) {
   const div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
 }
 
-function renderTicket(card, index) {
+function renderTicket(card, number) {
   const el = document.createElement('article');
   el.className = 'ticket';
   el.tabIndex = 0;
@@ -33,7 +65,7 @@ function renderTicket(card, index) {
   el.setAttribute('aria-label', `View details for ${card.customerName}`);
   el.innerHTML = `
     <span class="ticket-stamp ${statusToClass(card.status)}">${escapeHtml(card.status || '')}</span>
-    <div class="ticket-number">No. ${String(index + 1).padStart(3, '0')}</div>
+    <div class="ticket-number">No. ${String(number).padStart(3, '0')}</div>
     <h3 class="ticket-name">${escapeHtml(card.customerName)}</h3>
     ${card.orderName ? `<p class="ticket-order">${escapeHtml(card.orderName)}</p>` : ''}
     ${card.notes ? `<p class="ticket-notes">${escapeHtml(card.notes)}</p>` : ''}
@@ -46,19 +78,52 @@ function renderTicket(card, index) {
   return el;
 }
 
+function renderSection(section, numberByCardId) {
+  if (section.cards.length === 0) return null;
+
+  const grid = document.createElement('div');
+  grid.className = 'queue-grid';
+  section.cards.forEach((card) => {
+    grid.appendChild(renderTicket(card, numberByCardId.get(card.id) + 1));
+  });
+
+  if (section.collapsible) {
+    const details = document.createElement('details');
+    details.className = 'queue-section queue-section-collapsible';
+    const summary = document.createElement('summary');
+    summary.innerHTML = `<span class="section-title">${escapeHtml(section.title)}</span><span class="section-count">${section.cards.length}</span>`;
+    details.appendChild(summary);
+    details.appendChild(grid);
+    return details;
+  }
+
+  const wrap = document.createElement('section');
+  wrap.className = 'queue-section';
+  wrap.innerHTML = `<h2 class="section-title">${escapeHtml(section.title)}<span class="section-count">${section.cards.length}</span></h2>`;
+  wrap.appendChild(grid);
+  return wrap;
+}
+
 async function loadQueue() {
   queueStatus.textContent = 'Loading queue…';
   try {
     const res = await fetch(`${API_BASE}/api/queue`);
     if (!res.ok) throw new Error('Failed to load queue');
     const cards = await res.json();
-    queueGrid.innerHTML = '';
+    queueSections.innerHTML = '';
     if (cards.length === 0) {
       queueStatus.textContent = 'The queue is empty right now.';
       return;
     }
     queueStatus.textContent = '';
-    cards.forEach((card, i) => queueGrid.appendChild(renderTicket(card, i)));
+
+    // Ticket numbers reflect overall queue position (creation order),
+    // not position within whichever section they land in.
+    const numberByCardId = new Map(cards.map((c, i) => [c.id, i]));
+    groupCards(cards).forEach((section) => {
+      const el = renderSection(section, numberByCardId);
+      if (el) queueSections.appendChild(el);
+    });
   } catch (err) {
     queueStatus.textContent = 'Could not load the queue. Please try again later.';
     console.error(err);
