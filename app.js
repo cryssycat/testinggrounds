@@ -5,6 +5,9 @@ const API_BASE = 'https://testinggroundss.crysthigpen.workers.dev'.replace(/\/+$
 const queueSections = document.getElementById('queue-sections');
 const queueStatus = document.getElementById('queue-status');
 
+const infoBoard = document.getElementById('info-board');
+const infoContent = document.getElementById('info-content');
+
 const detailModal = document.getElementById('detail-modal');
 const detailTitle = document.getElementById('detail-title');
 const detailOrder = document.getElementById('detail-order');
@@ -140,19 +143,19 @@ async function openDetail(card) {
     const res = await fetch(`${API_BASE}/api/queue/${card.id}`);
     if (!res.ok) throw new Error('Failed to load details');
     const data = await res.json();
-    renderDescription(data.description);
+    renderBlocksInto(detailBody, data.description, 'No description yet.');
   } catch (err) {
     detailBody.innerHTML = '<p>Could not load details for this item.</p>';
     console.error(err);
   }
 }
 
-function renderDescription(blocks) {
+function renderBlocksInto(el, blocks, emptyMessage) {
   if (!blocks || blocks.length === 0) {
-    detailBody.innerHTML = '<p><em>No description yet.</em></p>';
+    el.innerHTML = emptyMessage ? `<p><em>${escapeHtml(emptyMessage)}</em></p>` : '';
     return;
   }
-  detailBody.innerHTML = blocks.map((block) => {
+  el.innerHTML = blocks.map((block) => {
     if (block.type === 'paragraph') return `<p>${escapeHtml(block.text)}</p>`;
     if (block.type === 'heading') return `<h3>${escapeHtml(block.text)}</h3>`;
     if (block.type === 'list_item') return `<p>• ${escapeHtml(block.text)}</p>`;
@@ -218,4 +221,18 @@ commissionForm.addEventListener('submit', async (e) => {
   }
 });
 
+async function loadInfo() {
+  try {
+    const res = await fetch(`${API_BASE}/api/info`);
+    if (!res.ok) return; // info board is optional — fail quietly
+    const data = await res.json();
+    if (!data.blocks || data.blocks.length === 0) return;
+    renderBlocksInto(infoContent, data.blocks);
+    infoBoard.classList.remove('hidden');
+  } catch (err) {
+    console.error(err); // optional section — don't disrupt the rest of the page
+  }
+}
+
 loadQueue();
+loadInfo();
