@@ -1,6 +1,6 @@
 // Point this at your deployed Worker (or leave relative if Worker + Pages
 // are served under the same domain via a route/proxy).
-const API_BASE = 'https://artist-queue-api.YOUR-SUBDOMAIN.workers.dev'.replace(/\/+$/, '');
+const API_BASE = 'https://queue.crysthigpen.workers.dev'.replace(/\/+$/, '');
 
 const queueSections = document.getElementById('queue-sections');
 const queueStatus = document.getElementById('queue-status');
