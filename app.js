@@ -1,12 +1,15 @@
 // Point this at your deployed Worker (or leave relative if Worker + Pages
 // are served under the same domain via a route/proxy).
-const API_BASE = 'https://queue.crysthigpen.workers.dev'.replace(/\/+$/, '');
+const API_BASE = 'https://artist-queue-api.YOUR-SUBDOMAIN.workers.dev'.replace(/\/+$/, '');
 
 const queueSections = document.getElementById('queue-sections');
 const queueStatus = document.getElementById('queue-status');
+const searchInput = document.getElementById('search-input');
 
 const infoBoard = document.getElementById('info-board');
 const infoContent = document.getElementById('info-content');
+
+let allCards = []; // full unfiltered list, kept in memory so search doesn't refetch
 
 const detailModal = document.getElementById('detail-modal');
 const detailTitle = document.getElementById('detail-title');
@@ -107,26 +110,63 @@ function renderSection(section, numberByCardId) {
   return wrap;
 }
 
+function renderQueue(cards, { searching } = {}) {
+  queueSections.innerHTML = '';
+
+  if (allCards.length === 0) {
+    queueStatus.textContent = 'The queue is empty right now.';
+    return;
+  }
+  if (searching && cards.length === 0) {
+    queueStatus.textContent = 'No matches for that search.';
+    return;
+  }
+  queueStatus.textContent = '';
+
+  // Ticket numbers reflect overall queue position (creation order),
+  // not position within whichever section they land in — based on the
+  // full list, so numbers stay stable while searching.
+  const numberByCardId = new Map(allCards.map((c, i) => [c.id, i]));
+  groupCards(cards).forEach((section) => {
+    const el = renderSection(section, numberByCardId);
+    if (!el) return;
+    // While actively searching, force open the collapsible section so a
+    // match inside "Entire Queue" isn't hidden behind a click.
+    if (searching && el.tagName === 'DETAILS') el.open = true;
+    queueSections.appendChild(el);
+  });
+}
+
+function matchesSearch(card, query) {
+  const q = query.toLowerCase();
+  return (
+    (card.customerName || '').toLowerCase().includes(q) ||
+    (card.orderName || '').toLowerCase().includes(q)
+  );
+}
+
+searchInput.addEventListener('input', () => {
+  const query = searchInput.value.trim();
+  if (!query) {
+    renderQueue(allCards);
+    return;
+  }
+  const filtered = allCards.filter((c) => matchesSearch(c, query));
+  renderQueue(filtered, { searching: true });
+});
+
 async function loadQueue() {
   queueStatus.textContent = 'Loading queue…';
   try {
     const res = await fetch(`${API_BASE}/api/queue`);
     if (!res.ok) throw new Error('Failed to load queue');
-    const cards = await res.json();
-    queueSections.innerHTML = '';
-    if (cards.length === 0) {
-      queueStatus.textContent = 'The queue is empty right now.';
-      return;
+    allCards = await res.json();
+    const query = searchInput.value.trim();
+    if (query) {
+      renderQueue(allCards.filter((c) => matchesSearch(c, query)), { searching: true });
+    } else {
+      renderQueue(allCards);
     }
-    queueStatus.textContent = '';
-
-    // Ticket numbers reflect overall queue position (creation order),
-    // not position within whichever section they land in.
-    const numberByCardId = new Map(cards.map((c, i) => [c.id, i]));
-    groupCards(cards).forEach((section) => {
-      const el = renderSection(section, numberByCardId);
-      if (el) queueSections.appendChild(el);
-    });
   } catch (err) {
     queueStatus.textContent = 'Could not load the queue. Please try again later.';
     console.error(err);
